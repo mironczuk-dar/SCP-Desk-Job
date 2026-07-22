@@ -62,7 +62,7 @@ DEFAULT_GAMEFILE_DATA = {
 #THEMES DATA
 THEMES_DATA_PATH = join(ROOT_DIR, 'data', 'themes_data.json')
 DEFAULT_THEME_DATA = {
-    'current_theme' : 'Slate Bloom'
+    'current_theme' : 'Solar Flare'
 }
 THEME_LIBRARY = {
     'Aurora' : {'colour_1' : "#0F1B3C",

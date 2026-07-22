@@ -96,16 +96,46 @@ class Game:
         s.flags = pygame.FULLSCREEN if s.fullscreen else pygame.RESIZABLE
 
     def get_scaled_mouse_pos(s):
-        """Return mouse position scaled from display space to virtual window.
-
-        The launcher renders to a fixed virtual resolution (`s.window`) and
-        scales to the actual display surface. This helper converts mouse
-        coordinates from the real display to the virtual coordinate space.
-        """
+        """Return mouse position scaled from display space to virtual window."""
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        scaled_x = mouse_x * (s.screen.get_width() / s.display.get_width())
-        scaled_y = mouse_y * (s.screen.get_height() / s.display.get_height())
-        return int(scaled_x), int(scaled_y)
+        scale, new_w, new_h, offset_x, offset_y = s.calculate_aspect_ratio_scale_and_offset()
+
+        # Remove the offset (black bars) from the real mouse position
+        adjusted_x = mouse_x - offset_x
+        adjusted_y = mouse_y - offset_y
+
+        # Scale the coordinates back to the 1920x1080 virtual space
+        virtual_x = adjusted_x / scale
+        virtual_y = adjusted_y / scale
+
+        # Clamp the values so clicking inside the black bars doesn't break UI logic
+        virtual_x = max(0, min(virtual_x, WINDOW_WIDTH))
+        virtual_y = max(0, min(virtual_y, WINDOW_HEIGHT))
+
+        return int(virtual_x), int(virtual_y)
+    
+    def calculate_aspect_ratio_scale_and_offset(s):
+        """Calculate the scale and offsets to maintain a 16:9 aspect ratio."""
+        display_w, display_h = s.display.get_width(), s.display.get_height()
+        target_ratio = WINDOW_WIDTH / WINDOW_HEIGHT
+        current_ratio = display_w / display_h
+
+        if current_ratio > target_ratio:
+            # Display is wider than 16:9 (Pillarbox: black bars on left/right)
+            scale = display_h / WINDOW_HEIGHT
+            new_w = int(WINDOW_WIDTH * scale)
+            new_h = display_h
+            offset_x = (display_w - new_w) // 2
+            offset_y = 0
+        else:
+            # Display is taller than 16:9 (Letterbox: black bars on top/bottom)
+            scale = display_w / WINDOW_WIDTH
+            new_w = display_w
+            new_h = int(WINDOW_HEIGHT * scale)
+            offset_x = 0
+            offset_y = (display_h - new_h) // 2
+
+        return scale, new_w, new_h, offset_x, offset_y
 
     def setting_up_managers(s):
         """Create top-level managers used across the application."""
@@ -173,12 +203,21 @@ class Game:
 
     def draw(s):
         """Render the active state to the virtual window and scale to the display."""
-        # background fill (currently red for debugging; change as appropriate)
+        # background fill for the virtual window
         s.window.fill((255, 0, 0))
         s.state_manager.draw(s.window)
 
-        scaled_window = pygame.transform.scale(s.window, (s.display.get_width(), s.display.get_height()))
-        s.display.blit(scaled_window, (0, 0))
+        # 1. Get aspect-ratio correct dimensions and offsets
+        scale, new_w, new_h, offset_x, offset_y = s.calculate_aspect_ratio_scale_and_offset()
+
+        # 2. Scale the virtual window proportionally
+        scaled_window = pygame.transform.scale(s.window, (new_w, new_h))
+
+        # 3. Clear the actual display with black to create the borders
+        s.display.fill((0, 0, 0))
+
+        # 4. Blit the scaled window at the calculated center offset
+        s.display.blit(scaled_window, (offset_x, offset_y))
         pygame.display.update()
 
     def run(s):
