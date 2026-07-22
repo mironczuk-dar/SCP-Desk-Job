@@ -111,6 +111,8 @@ class Options(GenericState):
 
         s.topbar_focus_position = max(0, min(s.topbar_focus_position, len(s.tabs)))
 
+        input_manager = s.game.input_manager
+
         for event in events:
             if event.type == pygame.MOUSEMOTION:
                 s.back_button_hover = s.back_button_rect.collidepoint(mouse_pos)
@@ -120,42 +122,39 @@ class Options(GenericState):
                     s.go_back()
                     return
 
-            if event.type == pygame.KEYDOWN:
-                key = event.key
+        if input_manager.just_pressed('escape'):
+            s.go_back()
+            return
 
-                if key == pygame.K_ESCAPE:
+        # ---------- TOPBAR ----------
+        if s.game.state_manager.ui_focus == 'topbar':
+            if input_manager.just_pressed('right'):
+                if s.topbar_focus_position < len(s.tabs):
+                    s.topbar_focus_position += 1
+
+            elif input_manager.just_pressed('left'):
+                if s.topbar_focus_position > 0:
+                    s.topbar_focus_position -= 1
+                else:
+                    s.game.state_manager.ui_focus = 'sidebar'
+
+            s.topbar_focus_position = max(0, min(s.topbar_focus_position, len(s.tabs)))
+
+            if input_manager.just_pressed('action_a'):
+                if s.topbar_focus_position == 0:
                     s.go_back()
                     return
+                s.topbar_index = s.topbar_focus_position - 1
+                s.game.state_manager.ui_focus = 'content'
+                s.back_button_hover = False
+                return
 
-                # ---------- TOPBAR ----------
-                if s.game.state_manager.ui_focus == 'topbar':
-                    if key == ctrl['right']:
-                        if s.topbar_focus_position < len(s.tabs):
-                            s.topbar_focus_position += 1
-
-                    elif key == ctrl['left']:
-                        if s.topbar_focus_position > 0:
-                            s.topbar_focus_position -= 1
-                        else:
-                            s.game.state_manager.ui_focus = 'sidebar'
-
-                    s.topbar_focus_position = max(0, min(s.topbar_focus_position, len(s.tabs)))
-
-                    if key == ctrl['action_a'] or key == pygame.K_RETURN:
-                        if s.topbar_focus_position == 0:
-                            s.go_back()
-                            return
-                        s.topbar_index = s.topbar_focus_position - 1
-                        s.game.state_manager.ui_focus = 'content'
-                        s.back_button_hover = False
-                        return
-
-                # ---------- CONTENT ----------
-                elif s.game.state_manager.ui_focus == 'content':
-                    if key == ctrl['action_b']:
-                        s.game.state_manager.ui_focus = 'topbar'
-                        s.topbar_focus_position = s.topbar_index + 1
-                        return
+        # ---------- CONTENT ----------
+        elif s.game.state_manager.ui_focus == 'content':
+            if input_manager.just_pressed('action_b'):
+                s.game.state_manager.ui_focus = 'topbar'
+                s.topbar_focus_position = s.topbar_index + 1
+                return
 
         if s.game.state_manager.ui_focus == 'content':
             _, active_tab = s.tabs[s.topbar_index]
@@ -397,59 +396,37 @@ class AudioOptionsTab(GenericOptionsTab):
         if s.game.state_manager.ui_focus != 'content':
             return
 
-        # 1. Capture the single KEYDOWN event from the queue
-        current_key = None
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                current_key = event.key
-                break 
+        input_manager = s.game.input_manager
 
-        if current_key is None:
-            # Still process mouse events for elements if needed
-            for element in s.ui_elements:
-                if hasattr(element, 'handling_events'):
-                    try:
-                        element.handling_events(events, ctrl)
-                    except TypeError:
-                        element.handling_events(events)
-            return
+        is_up = input_manager.just_pressed('up')
+        is_down = input_manager.just_pressed('down')
+        is_left = input_manager.just_pressed('left')
+        is_right = input_manager.just_pressed('right')
+        is_confirm = input_manager.just_pressed('action_a')
 
-        # 2. Map current_key to logical navigation actions
-        is_up = current_key == ctrl['up']
-        is_down = current_key == ctrl['down']
-        is_left = current_key == ctrl['left']
-        is_right = current_key == ctrl['right']
-        is_confirm = current_key in [ctrl['action_a'], pygame.K_RETURN]
+        if is_up or is_down:
+            if is_up:
+                s.selected_index = (s.selected_index - 1) % len(s.ui_elements)
+            elif is_down:
+                s.selected_index = (s.selected_index + 1) % len(s.ui_elements)
 
-        # --- VERTICAL NAVIGATION ---
-        if is_up:
-            s.selected_index = (s.selected_index - 1) % len(s.ui_elements)
-        elif is_down:
-            s.selected_index = (s.selected_index + 1) % len(s.ui_elements)
+            for i, element in enumerate(s.ui_elements):
+                if hasattr(element, 'is_selected'):
+                    element.is_selected = (i == s.selected_index)
 
-        # Update the s.is_selected flags so elements know who has focus
-        for i, element in enumerate(s.ui_elements):
-            if hasattr(element, 'is_selected'):
-                element.is_selected = (i == s.selected_index)
-
-        # 3. --- DISPATCH INTERACTION TO ACTIVE ELEMENT ---
         active_element = s.ui_elements[s.selected_index]
 
-        # Case A: Active element is a Slider
         if active_element.__class__.__name__ == "Slider":
             if is_left:
                 active_element.change_value(-active_element.step)
             elif is_right:
                 active_element.change_value(active_element.step)
-
-        # Case B: Active element is a Button / Toggle Button
         elif is_confirm:
             if hasattr(active_element, 'activate'):
                 active_element.activate()
             elif hasattr(active_element, 'action') and active_element.action:
                 active_element.action()
 
-        # Pass remaining raw events (like mouse events) safely down to the element
         if hasattr(active_element, 'handling_events'):
             try:
                 active_element.handling_events(events, ctrl)
@@ -585,13 +562,11 @@ class ControlsOptionsTab(GenericOptionsTab):
             return
 
         mouse_pos = s.game.get_scaled_mouse_pos()
-        current_key = None
+        input_manager = s.game.input_manager
+        current_key = input_manager.get_last_key_down()
         mouse_click = False
 
         for event in events:
-            if event.type == pygame.KEYDOWN and current_key is None:
-                current_key = event.key
-
             if event.type == pygame.MOUSEMOTION:
                 for i in range(len(s.preset_names)):
                     if s.get_preset_button_rect(i).collidepoint(mouse_pos):
@@ -645,11 +620,11 @@ class ControlsOptionsTab(GenericOptionsTab):
         if s.waiting_for_key or current_key is None:
             return
 
-        is_up = current_key == ctrl['up']
-        is_down = current_key == ctrl['down']
-        is_left = current_key == ctrl['left']
-        is_right = current_key == ctrl['right']
-        is_confirm = current_key in [ctrl['action_a'], pygame.K_RETURN]
+        is_up = input_manager.just_pressed('up')
+        is_down = input_manager.just_pressed('down')
+        is_left = input_manager.just_pressed('left')
+        is_right = input_manager.just_pressed('right')
+        is_confirm = input_manager.just_pressed('action_a')
 
         # --- PRESET SELECTOR NAVIGATION ---
         if s.focus_area == 'preset':
@@ -689,7 +664,7 @@ class ControlsOptionsTab(GenericOptionsTab):
 
     def draw(s, window):
         has_focus = (s.game.state_manager.ui_focus == 'content')
-        pressed_keys = pygame.key.get_pressed()
+        input_manager = s.game.input_manager
         
         # ---------------------------------------------------------
         # 1. DRAW PRESET SELECTOR
@@ -770,7 +745,14 @@ class ControlsOptionsTab(GenericOptionsTab):
                     pygame_name = pygame.key.name(key_code).lower()
                     
                     base_image_key = s.asset_mapping.get(pygame_name, f"{pygame_name}_button")
-                    image_key = f"{base_image_key}_pressed" if pressed_keys[key_code] else base_image_key
+                    image_key = f"{base_image_key}_pressed" if input_manager.is_pressed(action_name) else base_image_key
+
+                    if hasattr(s.game, 'button_images') and image_key in s.game.button_images:
+                        img = s.game.button_images[image_key]
+                        window.blit(img, img.get_rect(midright=(rect.right - 25, rect.centery)))
+                    else:
+                        key_surf = s.value_font.render(pygame_name.upper(), True, text_colour)
+                        window.blit(key_surf, key_surf.get_rect(midright=(rect.right - 25, rect.centery)))
 
                     btn_img = None
                     if image_key in s.game.button_images:
@@ -788,6 +770,7 @@ class ControlsOptionsTab(GenericOptionsTab):
                         window.blit(fallback_text, fallback_text.get_rect(midright=(rect.right - 25, rect.centery)))
 
     def update_control(s, action_name, new_key):
+        """Update a specific key binding and save to disk."""
         s.game.controls_data['keyboard'][action_name] = new_key
         save_data(s.game.controls_data, CONTROLS_DATA_PATH)
 
@@ -876,14 +859,11 @@ class VideoOptionsTab(GenericOptionsTab):
             return
 
         mouse_pos = s.game.get_scaled_mouse_pos()
+        input_manager = s.game.input_manager
         clicked = False
-        current_key = None
         fullscreen_active = s.is_fullscreen_enabled()
 
         for event in events:
-            if event.type == pygame.KEYDOWN and current_key is None:
-                current_key = event.key
-
             if event.type == pygame.MOUSEMOTION:
                 if fullscreen_active:
                     for i in range(len(s.FPS_options)):
@@ -941,18 +921,15 @@ class VideoOptionsTab(GenericOptionsTab):
                         clicked = True
                         break
 
-        if current_key is None and clicked:
-            return
-
-        if current_key is None:
+        if clicked:
             return
 
         if fullscreen_active:
-            is_up = current_key == ctrl['up']
-            is_down = current_key == ctrl['down']
-            is_left = current_key == ctrl['left']
-            is_right = current_key == ctrl['right']
-            is_confirm = current_key in [ctrl['action_a'], pygame.K_RETURN]
+            is_up = input_manager.just_pressed('up')
+            is_down = input_manager.just_pressed('down')
+            is_left = input_manager.just_pressed('left')
+            is_right = input_manager.just_pressed('right')
+            is_confirm = input_manager.just_pressed('action_a')
 
             if s.active_column == 'fps':
                 if is_up and s.fps_index > 0:
@@ -976,11 +953,11 @@ class VideoOptionsTab(GenericOptionsTab):
                     s.apply_resolution_selection()
             return
 
-        is_up = current_key == ctrl['up']
-        is_down = current_key == ctrl['down']
-        is_left = current_key == ctrl['left']
-        is_right = current_key == ctrl['right']
-        is_confirm = current_key in [ctrl['action_a'], pygame.K_RETURN]
+        is_up = input_manager.just_pressed('up')
+        is_down = input_manager.just_pressed('down')
+        is_left = input_manager.just_pressed('left')
+        is_right = input_manager.just_pressed('right')
+        is_confirm = input_manager.just_pressed('action_a')
 
         # --- MOVE UP / DOWN / LEFT / RIGHT ---
         if s.active_column == 'resolution':

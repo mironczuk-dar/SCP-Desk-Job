@@ -18,10 +18,13 @@ DEFAULT_CONTROLS_DATA = {
     'right' : pygame.K_RIGHT,
     'options' : pygame.K_TAB,
     'action_a' : pygame.K_r,
-    'action_b' : pygame.K_e,
-    'action_x' : pygame.K_w,
-    'action_y' : pygame.K_q
-}}
+    'action_b' : pygame.K_e},
+
+    'gamepad' : {
+        'action_a' : 0,
+        'action_b' : 1,
+        'options' : 6,
+    }}
 
 #SCREEN / WINDOW SETTINGS
 WINDOW_DATA_PATH = join(ROOT_DIR, 'data', 'window_data.json')

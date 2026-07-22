@@ -11,6 +11,7 @@ from Tools.data_loading_tools import load_data, save_data
 from Managers.state_manager import StateManager
 from Managers.audio_manager import AudioManager
 from Managers.achievement_manager import AchievementManager
+from Managers.input_manager import InputManager
 
 #IMPROTING STATES
 from States.start_menu import StartMenu
@@ -142,6 +143,7 @@ class Game:
         s.state_manager = StateManager(s)
         s.audio_manager = AudioManager(s)
         s.achievements_manager = AchievementManager(s)
+        s.input_manager = InputManager(s)
 
     def creating_states(s):
         s.state_manager.add_state('Start menu', StartMenu(s))
@@ -159,8 +161,12 @@ class Game:
         save_data(s.achievements_data, ACHIEVEMENTS_DATA_PATH)
 
     def handling_events(s):
-
+        # 1. Grab all events ONCE and empty the queue
         events = pygame.event.get()
+        
+        # 2. Pass those exact events to your InputManager
+        s.input_manager.update(events) 
+        
         for event in events:
             if event.type == pygame.QUIT:
                 s.save()
@@ -174,13 +180,22 @@ class Game:
                 s.screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
                 save_data(s.window_data, WINDOW_DATA_PATH)
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    s.save()
-                    pygame.quit()
-                    exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                s.save()
+                pygame.quit()
+                exit()
 
+        # 3. Pass those exact events to your StateManager
         s.state_manager.handling_events(events)
+
+    def update(s):
+        s.delta_time = s.clock.tick(s.fps) / 1000
+
+        print(f"FPS: {s.clock.get_fps():.2f}", end='\r')
+        
+        # REMOVED s.input_manager.update() from here
+        s.state_manager.update(s.delta_time)
+        s.achievements_manager.update()
 
     def update(s):
         s.delta_time = s.clock.tick(s.fps) / 1000

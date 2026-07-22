@@ -100,21 +100,11 @@ class Slider:
                 if event.button == 1:
                     s.dragging = False
 
-            # =============================
-            # KEYBOARD CONTROL (Remapped)
-            # =============================
-            if s.is_selected and event.type == pygame.KEYDOWN and ctrl is not None:
-                if event.key == ctrl['right']:
-                    s.change_value(s.step)
-                elif event.key == ctrl['left']:
-                    s.change_value(-s.step)
-                    
-            # Fallback for raw keyboard if ctrl mapping isn't passed down
-            elif s.is_selected and event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    s.change_value(s.step)
-                elif event.key == pygame.K_LEFT:
-                    s.change_value(-s.step)
+        if s.is_selected:
+            if engine.input_manager.just_pressed('right'):
+                s.change_value(s.step)
+            elif engine.input_manager.just_pressed('left'):
+                s.change_value(-s.step)
 
 
         # =============================

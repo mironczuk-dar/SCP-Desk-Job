@@ -68,23 +68,20 @@ class ExtrasMenu(GenericState):
     #METHOD FOR HANDLING EVENTS IN THE MENU (BUTTON CLICKS, ...)
     def handling_events(s, events):
         mouse_pos = s.game.get_scaled_mouse_pos()
-        ctrl = s.game.controls_data['keyboard']
+        input_manager = s.game.input_manager
 
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                
-                #NAVIGATING THE KEYBOARD GRID
-                if event.key == ctrl['up']:
-                    s.active_index = (s.active_index - 1) % len(s.buttons)
+        if input_manager.just_pressed('up'):
+            s.active_index = (s.active_index - 1) % len(s.buttons)
 
-                elif event.key == ctrl['down']:
-                    s.active_index = (s.active_index + 1) % len(s.buttons)
+        elif input_manager.just_pressed('down'):
+            s.active_index = (s.active_index + 1) % len(s.buttons)
 
-                elif event.key == ctrl['action_a']:
-                    s.buttons[s.active_index].press()
+        elif input_manager.just_pressed('action_a'):
+            if s.buttons:
+                s.buttons[s.active_index].press()
 
-                elif event.key == ctrl['action_b']:
-                    s.back_to_start_menu()
+        elif input_manager.just_pressed('action_b') or input_manager.just_pressed('escape'):
+            s.back_to_start_menu()
 
         # HOVER MYSZY
         for i, button in enumerate(s.buttons):
