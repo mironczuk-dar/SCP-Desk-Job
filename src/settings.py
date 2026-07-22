@@ -45,7 +45,7 @@ DEFAULT_AUDIO_DATA = {
 }
 
 #ACHIEVEMENTS DATA
-ACHIEVEMENTS_DATA_PATH = join(ROOT_DIR, 'data', 'save_data', 'achievements.json')
+ACHIEVEMENTS_DATA_PATH = join(ROOT_DIR, 'data', 'achievements.json')
 DEFAULT_ACHIVEMENTS_DATA = []
 
 #SAVEFILE_DATA

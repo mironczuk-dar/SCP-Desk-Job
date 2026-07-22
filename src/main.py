@@ -187,12 +187,14 @@ class Game:
 
         print(f"FPS: {s.clock.get_fps():.2f}", end='\r')
         s.state_manager.update(s.delta_time)
+        s.achievements_manager.update()
 
     def draw(s):
         """Render the active state to the virtual window and scale to the display."""
         # background fill for the virtual window
         s.window.fill((255, 0, 0))
         s.state_manager.draw(s.window)
+        s.achievements_manager.draw(s.window)
 
         # 1. Get aspect-ratio correct dimensions and offsets
         scale, new_w, new_h, offset_x, offset_y = s.calculate_aspect_ratio_scale_and_offset()
