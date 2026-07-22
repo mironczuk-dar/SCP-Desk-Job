@@ -30,7 +30,6 @@ class StateManager:
         s.states = {}
         s.active_state = None
         s.active_state_name = None
-        s.ui_focus = 'content'
         s.last_state = None
         s.last_state_name = None
 

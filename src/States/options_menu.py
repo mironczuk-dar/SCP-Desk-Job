@@ -16,7 +16,7 @@ Developer notes
 #
 import pygame
 
-from settings import THEME_LIBRARY, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_DATA_PATH, CONTROLS_DATA_PATH, get_contrast_text_color
+from settings import THEME_LIBRARY, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_DATA_PATH, CONTROLS_DATA_PATH
 from States.generic_state import GenericState
 
 from UI_elements.Generic_UI_elements.buttons import GenericToggleButton
@@ -24,6 +24,7 @@ from UI_elements.Generic_UI_elements.sliders import Slider
 from UI_elements.Options_UI_elements.FPS_preview_ball import Ball
 
 from Tools.data_loading_tools import save_data
+from Tools.colour_editing_tools import *
 
 
 class Options(GenericState):

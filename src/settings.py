@@ -44,6 +44,21 @@ DEFAULT_AUDIO_DATA = {
     'music_volume' : 0.25
 }
 
+#ACHIEVEMENTS DATA
+ACHIEVEMENTS_DATA_PATH = join(ROOT_DIR, '..', 'data', 'save_data', 'achievements.json')
+DEFAULT_ACHIVEMENTS_DATA = []
+
+#SAVEFILE_DATA
+#SAVEFILE_DATA_PATH = join(ROOT_DIR, '..', 'data', 'save_data', 'save_file.json')
+
+#GAMEFILE_DATA
+GAMEFILE_DATA_PATH = join(ROOT_DIR, '..', 'data', 'save_data', 'gamefile.json')
+DEFAULT_GAMEFILE_DATA = {
+    'game launched' : False,
+    'Good ending unlocked' : False,
+    'Bad ending unlocked' : False
+}
+
 #THEMES DATA
 THEMES_DATA_PATH = join(ROOT_DIR, 'data', 'themes_data.json')
 DEFAULT_THEME_DATA = {
@@ -58,54 +73,5 @@ THEME_LIBRARY = {
     'Solar Flare' : {'colour_1' : "#2D1806",  # Darker base for contrast
                      'colour_2' : "#FF8F3C",  # Bright orange with better visibility
                      'colour_3' : "#CC5E2B",  # Distinct warm tone
-                     'colour_4' : "#FFE4BC"},
-
-    'Forest Dusk' : {'colour_1' : "#0A1F10",  # Dark green base
-                     'colour_2' : "#98C99D",  # Bright sage (better contrast)
-                     'colour_3' : "#5D876E",  # Medium with good distinction
-                     'colour_4' : "#BDE8CC"},
-
-    'Ocean Depths' : {'colour_1' : "#042539",  # Dark blue for better contrast
-                      'colour_2' : "#6CBCEC",  # Brighter cyan (distinguishable)
-                      'colour_3' : "#3A7E8B",  # Mid-tone with contrast
-                      'colour_4' : "#CCF0FF"},
-
-    'Neon Grid' : {'colour_1' : "#150C2F",   # Dark purple base
-                   'colour_2' : "#E035F8",   # Bright magenta (more distinct)
-                   'colour_3' : "#9B64FF",   # Medium violet with contrast
-                   'colour_4' : "#EDE1FE"},
-
-    'Slate Bloom' : {'colour_1' : "#232D3E", # Darker slate for better text contrast
-                     'colour_2' : "#A8C9EE", # Bright blue (more visible)
-                     'colour_3' : "#6B8FAF", # Medium with good distinction
-                     'colour_4' : "#DCEAF7"},
-
-    'High Contrast' : {'colour_1' : "#1A1A1A",  # Dark gray background (non-black)
-                       'colour_2' : "#FFFFFF",   # White text
-                       'colour_3' : "#000000",   # Black elements
-                       'colour_4' : "#FFD700"},   # Gold for accents
+                     'colour_4' : "#FFE4BC"}
 }
-
-
-def hex_to_rgb(hex_color):
-    """Convert a hex color string ("#RRGGBB") to an (R, G, B) tuple.
-
-    Accepts strings starting with or without a leading '#'.
-    """
-    hex_color = hex_color.lstrip('#')
-    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-
-
-def get_contrast_text_color(bg_color):
-    """Return either black or white text color for readable contrast.
-
-    Uses a simple luminance approximation to choose a contrasting color.
-    Accepts a hex string or an (R, G, B) tuple.
-    """
-    if isinstance(bg_color, str):
-        r, g, b = hex_to_rgb(bg_color)
-    else:
-        r, g, b = bg_color
-
-    luminance = 0.299 * r + 0.587 * g + 0.114 * b
-    return (0, 0, 0) if luminance > 150 else (255, 255, 255)

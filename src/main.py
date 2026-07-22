@@ -10,6 +10,7 @@ from Tools.data_loading_tools import load_data, save_data
 #IMPORTING STATES
 from Managers.state_manager import StateManager
 from Managers.audio_manager import AudioManager
+from Managers.achievement_manager import AchievementManager
 
 #IMPROTING STATES
 from States.start_menu import StartMenu
@@ -85,6 +86,8 @@ class Game:
         s.audio_data = load_data(AUDIO_DATA_PATH, DEFAULT_AUDIO_DATA)
         s.theme_data = load_data(THEMES_DATA_PATH, DEFAULT_THEME_DATA)
         s.controls_data = load_data(CONTROLS_DATA_PATH, DEFAULT_CONTROLS_DATA)
+        s.achievements_data = load_data(ACHIEVEMENTS_DATA_PATH, DEFAULT_ACHIVEMENTS_DATA)
+        s.gamefile_data = load_data(GAMEFILE_DATA_PATH, DEFAULT_GAMEFILE_DATA)
 
     def setting_up_display_flags(s):
         """Configure initial display flags and remember last window size."""
@@ -108,6 +111,7 @@ class Game:
         """Create top-level managers used across the application."""
         s.state_manager = StateManager(s)
         s.audio_manager = AudioManager(s)
+        s.achievements_manager = AchievementManager(s)
 
     def creating_states(s):
         s.state_manager.add_state('Start menu', StartMenu(s))
@@ -122,6 +126,7 @@ class Game:
         save_data(s.audio_data, AUDIO_DATA_PATH)
         save_data(s.controls_data, CONTROLS_DATA_PATH)
         save_data(s.theme_data, THEMES_DATA_PATH)
+        save_data(s.achievements_data, ACHIEVEMENTS_DATA_PATH)
 
     def handling_events(s):
 
