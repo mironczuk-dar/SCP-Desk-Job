@@ -45,14 +45,14 @@ DEFAULT_AUDIO_DATA = {
 }
 
 #ACHIEVEMENTS DATA
-ACHIEVEMENTS_DATA_PATH = join(ROOT_DIR, '..', 'data', 'save_data', 'achievements.json')
+ACHIEVEMENTS_DATA_PATH = join(ROOT_DIR, 'data', 'save_data', 'achievements.json')
 DEFAULT_ACHIVEMENTS_DATA = []
 
 #SAVEFILE_DATA
-#SAVEFILE_DATA_PATH = join(ROOT_DIR, '..', 'data', 'save_data', 'save_file.json')
+#SAVEFILE_DATA_PATH = join(ROOT_DIR, 'data', 'save_data', 'save_file.json')
 
 #GAMEFILE_DATA
-GAMEFILE_DATA_PATH = join(ROOT_DIR, '..', 'data', 'save_data', 'gamefile.json')
+GAMEFILE_DATA_PATH = join(ROOT_DIR, 'data', 'save_data', 'gamefile.json')
 DEFAULT_GAMEFILE_DATA = {
     'game launched' : False,
     'Good ending unlocked' : False,

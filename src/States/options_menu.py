@@ -878,12 +878,24 @@ class VideoOptionsTab(GenericOptionsTab):
         mouse_pos = s.game.get_scaled_mouse_pos()
         clicked = False
         current_key = None
+        fullscreen_active = s.is_fullscreen_enabled()
 
         for event in events:
             if event.type == pygame.KEYDOWN and current_key is None:
                 current_key = event.key
 
             if event.type == pygame.MOUSEMOTION:
+                if fullscreen_active:
+                    for i in range(len(s.FPS_options)):
+                        if s.get_fps_rect(i).collidepoint(mouse_pos):
+                            s.active_column = 'fps'
+                            s.fps_index = i
+                            break
+                    else:
+                        s.active_column = 'resolution'
+                        s.resolution_index = 0
+                    continue
+
                 for i in range(len(s.resolution_list)):
                     if s.get_resolution_grid_rect(i).collidepoint(mouse_pos):
                         s.active_column = 'resolution'
@@ -897,6 +909,21 @@ class VideoOptionsTab(GenericOptionsTab):
                             break
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if fullscreen_active:
+                    for i in range(len(s.FPS_options)):
+                        if s.get_fps_rect(i).collidepoint(mouse_pos):
+                            s.active_column = 'fps'
+                            s.fps_index = i
+                            s.apply_fps_selection()
+                            clicked = True
+                            break
+                    if not clicked and s.get_resolution_grid_rect(0).collidepoint(mouse_pos):
+                        s.active_column = 'resolution'
+                        s.resolution_index = 0
+                        s.apply_resolution_selection()
+                        clicked = True
+                    continue
+
                 for i in range(len(s.resolution_list)):
                     if s.get_resolution_grid_rect(i).collidepoint(mouse_pos):
                         s.active_column = 'resolution'
@@ -918,6 +945,35 @@ class VideoOptionsTab(GenericOptionsTab):
             return
 
         if current_key is None:
+            return
+
+        if fullscreen_active:
+            is_up = current_key == ctrl['up']
+            is_down = current_key == ctrl['down']
+            is_left = current_key == ctrl['left']
+            is_right = current_key == ctrl['right']
+            is_confirm = current_key in [ctrl['action_a'], pygame.K_RETURN]
+
+            if s.active_column == 'fps':
+                if is_up and s.fps_index > 0:
+                    s.fps_index -= 1
+                elif is_down and s.fps_index < len(s.FPS_options) - 1:
+                    s.fps_index += 1
+                elif is_left:
+                    s.active_column = 'resolution'
+                    s.resolution_index = 0
+                elif is_right:
+                    s.active_column = 'fps'
+                if is_confirm:
+                    s.apply_fps_selection()
+            else:
+                if is_right:
+                    s.active_column = 'fps'
+                    s.fps_index = 0
+                elif is_confirm:
+                    s.active_column = 'resolution'
+                    s.resolution_index = 0
+                    s.apply_resolution_selection()
             return
 
         is_up = current_key == ctrl['up']
@@ -989,48 +1045,61 @@ class VideoOptionsTab(GenericOptionsTab):
         return x, y
 
     def draw_resolution_grid(s, window, has_focus):
+        fullscreen_active = s.is_fullscreen_enabled()
+
         for i, (res_label, res_dims) in enumerate(s.resolution_list):
+            is_toggle_button = i == 0
+            is_disabled = fullscreen_active and not is_toggle_button
             is_selected = (s.active_column == 'resolution' and i == s.resolution_index)
             is_current = s.is_current_resolution(res_label)
 
-            bg_colour = (
-                s.current_theme['colour_2']
-                if is_selected and has_focus
-                else s.current_theme['colour_4']
-            )
+            if is_toggle_button:
+                if fullscreen_active:
+                    bg_colour = s.current_theme['colour_2']
+                else:
+                    bg_colour = s.current_theme['colour_4']
+            elif is_disabled:
+                bg_colour = (80, 80, 80)
+            else:
+                bg_colour = s.current_theme['colour_4']
+
+            if is_selected and has_focus and not is_disabled:
+                bg_colour = s.current_theme['colour_2']
 
             text_colour = get_contrast_text_color(bg_colour)
+            if is_disabled:
+                text_colour = (140, 140, 140)
+
             x, y = s.get_resolution_grid_pos(i)
 
             rect = pygame.Rect(x, y, s.resolution_button_width, s.resolution_button_height)
             pygame.draw.rect(window, bg_colour, rect, border_radius=8)
 
-            # Current resolution indicator
-            if is_current:
+            if is_current and not is_disabled:
                 pygame.draw.rect(window, (0, 200, 0), rect, 4, border_radius=8)
 
-            # Focus indicator
-            if is_selected and has_focus:
+            if is_selected and has_focus and not is_disabled:
                 pygame.draw.rect(window, (255, 200, 0), rect, 3, border_radius=8)
 
-            # Text - fit resolution label into button
-            display_text = res_label
+            if is_toggle_button:
+                display_text = f"Fullscreen: {'ON' if fullscreen_active else 'OFF'}"
+            else:
+                display_text = res_label
+
             text_surf = s.value_font.render(display_text, True, text_colour)
-            
-            # Scale down text if it's too wide
+
             max_text_width = s.resolution_button_width - int(WINDOW_WIDTH * 0.01)
             if text_surf.get_width() > max_text_width:
                 scale_factor = max_text_width / text_surf.get_width()
                 scaled_font_size = max(int(s.value_font.get_height() * scale_factor), 10)
                 small_font = pygame.font.SysFont(None, scaled_font_size, False)
                 text_surf = small_font.render(display_text, True, text_colour)
-            
+
             text_rect = text_surf.get_rect(center=rect.center)
             window.blit(text_surf, text_rect)
 
     def draw_FPS_buttons(s, window, has_focus):
         for i, fps in enumerate(s.FPS_options):
-
             is_selected = (
                 s.active_column == 'fps' and
                 i == s.fps_index
@@ -1038,25 +1107,22 @@ class VideoOptionsTab(GenericOptionsTab):
 
             is_current = s.is_current_fps(fps)
 
-            bg_colour = (
-                s.current_theme['colour_2']
-                if is_selected and has_focus
-                else s.current_theme['colour_4']
-            )
+            if is_selected and has_focus:
+                bg_colour = s.current_theme['colour_2']
+            else:
+                bg_colour = s.current_theme['colour_4']
 
             text_colour = get_contrast_text_color(bg_colour)
 
             x = s.fps_col_x
             y = s.fps_col_start_y + i * (s.fps_button_height + s.fps_spacing_y)
-            
+
             rect = pygame.Rect(x, y, s.fps_button_width, s.fps_button_height)
             pygame.draw.rect(window, bg_colour, rect, border_radius=8)
 
-            # Current FPS indicator
             if is_current:
                 pygame.draw.rect(window, (0, 200, 0), rect, 4, border_radius=8)
 
-            # Focus indicator
             if is_selected and has_focus:
                 pygame.draw.rect(window, (255, 200, 0), rect, 3, border_radius=8)
 
@@ -1082,7 +1148,7 @@ class VideoOptionsTab(GenericOptionsTab):
         res_label, res_dims = s.resolution_list[s.resolution_index]
         if res_label == 'Fullscreen':
             s.go_fullscreen()
-        else:
+        elif not s.is_fullscreen_enabled():
             width, height = res_dims
             s.change_resolution(width, height)
 
@@ -1092,6 +1158,9 @@ class VideoOptionsTab(GenericOptionsTab):
             s.update_fps(1000)
         else:
             s.update_fps(fps)
+
+    def is_fullscreen_enabled(s):
+        return bool(s.game.fullscreen or s.game.window_data.get('fullscreen', False))
 
     def is_current_fps(s, fps):
         """Return whether the given FPS option matches the current launcher FPS."""
@@ -1125,12 +1194,6 @@ class VideoOptionsTab(GenericOptionsTab):
 
         # Keep a stable windowed size for later fullscreen toggles.
         s.game.last_window_size = (width, height)
-
-        # If the requested size is larger than the desktop, use fullscreen.
-        info = pygame.display.Info()
-        if width > info.current_w or height > info.current_h:
-            s.go_fullscreen()
-            return
 
         # Apply standard windowed resolution.
         s.game.window_data['width'] = width
