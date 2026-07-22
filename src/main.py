@@ -180,19 +180,6 @@ class Game:
                     pygame.quit()
                     exit()
 
-                if event.key == pygame.K_9:
-                    s.fullscreen = not s.fullscreen
-                    s.window_data['fullscreen'] = s.fullscreen
-                    if s.fullscreen:
-                        s.last_window_size = (s.display.get_width(), s.display.get_height())
-                        s.flags = pygame.FULLSCREEN
-                        s.display = pygame.display.set_mode((s.window_data['width'], s.window_data['height']), s.flags)
-                    else:
-                        s.flags = pygame.RESIZABLE
-                        s.display = pygame.display.set_mode(s.last_window_size, s.flags)
-                        s.window_data['width'], s.window_data['height'] = s.last_window_size
-                    save_data(s.window_data, WINDOW_DATA_PATH)
-
         s.state_manager.handling_events(events)
 
     def update(s):

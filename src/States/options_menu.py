@@ -1118,23 +1118,41 @@ class VideoOptionsTab(GenericOptionsTab):
     def change_resolution(s, width, height):
         """Apply a new window resolution and persist the selected size."""
 
+        # Exit fullscreen for normal resolution picks.
+        s.game.fullscreen = False
+        s.game.window_data['fullscreen'] = False
+        s.game.flags = pygame.RESIZABLE
+
+        # Keep a stable windowed size for later fullscreen toggles.
+        s.game.last_window_size = (width, height)
+
+        # If the requested size is larger than the desktop, use fullscreen.
+        info = pygame.display.Info()
+        if width > info.current_w or height > info.current_h:
+            s.go_fullscreen()
+            return
+
+        # Apply standard windowed resolution.
         s.game.window_data['width'] = width
         s.game.window_data['height'] = height
-        s.game.display = pygame.display.set_mode((width, height), pygame.RESIZABLE)
+        s.game.display = pygame.display.set_mode((width, height), s.game.flags)
 
-        #SAVING CHANGES
+        # SAVING CHANGES
         save_data(s.game.window_data, WINDOW_DATA_PATH)
 
     def go_fullscreen(s):
         """Toggle fullscreen mode and persist the new window state."""
-
         s.game.fullscreen = not s.game.fullscreen
         s.game.window_data['fullscreen'] = s.game.fullscreen
 
         if s.game.fullscreen:
-            s.game.last_window_size = (s.game.display.get_width(), s.game.display.get_height())
+            s.game.last_window_size = (
+                s.game.window_data.get('width', WINDOW_WIDTH),
+                s.game.window_data.get('height', WINDOW_HEIGHT),
+            )
             s.game.flags = pygame.FULLSCREEN
-            s.game.display = pygame.display.set_mode((s.game.window_data['width'], s.game.window_data['height']), s.game.flags)
+            s.game.display = pygame.display.set_mode((0, 0), s.game.flags)
+            s.game.window_data['width'], s.game.window_data['height'] = s.game.display.get_size()
         else:
             s.game.flags = pygame.RESIZABLE
             s.game.display = pygame.display.set_mode(s.game.last_window_size, s.game.flags)
@@ -1152,7 +1170,8 @@ class VideoOptionsTab(GenericOptionsTab):
 
     def draw_current_settings(s, window):
         """Render a status line with the currently applied resolution/FPS."""
-        text = f"Resolution: {s.game.window_data['width']}x{s.game.window_data['height']} | FPS: "
+        display_w, display_h = s.game.display.get_size()
+        text = f"Resolution: {display_w}x{display_h} | FPS: "
         text += "Uncapped" if s.game.window_data['fps'] == 0 else str(s.game.window_data['fps'])
 
         surf = s.font.render(text, True, s.current_theme['colour_2'])
