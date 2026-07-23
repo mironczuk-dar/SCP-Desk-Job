@@ -24,6 +24,15 @@ DEFAULT_CONTROLS_DATA = {
         'action_a' : 0,
         'action_b' : 1,
         'options' : 6,
+    },
+    'gpio' : {
+        'up' : 17,
+        'down' : 27,
+        'left' : 22,
+        'right' : 23,
+        'action_a' : 5,
+        'action_b' : 6,
+        'options' : 13
     }}
 
 #SCREEN / WINDOW SETTINGS
