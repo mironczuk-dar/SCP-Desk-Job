@@ -14,7 +14,10 @@ from settings import ROOT_DIR
 
 def load_audio(game):
     mixer.init()
-    pass
+
+    game.music_tracks = {
+        'Start menu' : join(ROOT_DIR, 'audio', 'Music', 'start_menu_music.ogg'),
+    }
 
 #LOADING LEVEL ASSETS
 def load_menu_assets(game):

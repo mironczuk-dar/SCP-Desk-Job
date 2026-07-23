@@ -4,7 +4,7 @@
 
 **Repository:** [mironczuk-dar/SCP-Desk-Job](https://github.com/mironczuk-dar/SCP-Desk-Job.git)
 
-> This developer guide is intended for contributors and maintainers who want to understand how Atomic Launcher starts, how the project is organized, and how to get a development environment running on Windows or Linux.
+> This developer guide outlines the architecture, setup, and contribution workflow for **SCP Desk Job**. Currently built upon a robust "Default Pygame Project" template, this application features a state-driven UI, dynamic asset loading, and built-in managers for audio, inputs, and achievements.
 
 ---
 
@@ -16,48 +16,39 @@
    - Linux
 3. Project Structure
 4. Core Architecture
-5. Running the Launcher
+5. Running the Game
 6. Dependencies
-7. Adding or Inspecting Games
-8. Contribution Workflow
-9. Notes for Raspberry Pi and GPIO
+7. Contribution Workflow
 
 ---
 
 ## 1. Introduction
 
-Atomic Launcher is a Pygame-based launcher designed to host, browse, and run a collection of games from a unified interface. The project is organized to separate platform setup, UI state flow, asset loading, and game installation logic into distinct modules.
+**SCP Desk Job** is a Pygame-based application designed with a scalable, state-driven architecture. The project is modularized to cleanly separate game loop management, UI rendering, input handling (keyboard and gamepad), and data persistence. 
 
-This document replaces the older documentation and reflects the actual current repository structure and startup process.
+It handles dynamic aspect-ratio scaling (rendering to a fixed virtual resolution and scaling to the display), seamless background asset loading, and extensive user customization via JSON configuration files.
 
 ---
 
 ## 2. Quick Start
 
-Atomic Launcher provides dedicated startup scripts for both Windows and Linux. Use these scripts rather than manually invoking Python when possible.
+The project provides dedicated startup scripts to handle environment setup and dependency management automatically.
 
 ### Windows
 
-Use the bundled Windows launcher script:
+Use the bundled Windows script:
 
 ```bat
 [RUN]_WINDOWS.bat
+
 ```
 
 What it does:
 
-- changes to the launcher root directory
-- uses the embedded Python runtime at `windows_python/python.exe`
-- checks for an internet connection
-- if connected, attempts to update the repository using Portable Git from `PortableGit/cmd/git.exe`
-- upgrades required Python packages
-- launches `src/main.py`
-
-Important:
-
-- You do **not** need a separate Python installation on Windows.
-- You do **not** need a separate Git installation if the portable Git bundle is present.
-- The launcher is intended to work out of the box using the packaged runtime.
+* Uses the embedded Python runtime (if configured) or system Python.
+* Checks for an internet connection to update the repository via Git.
+* Installs or upgrades required Python packages.
+* Launches `src/main.py`.
 
 ### Linux
 
@@ -65,162 +56,104 @@ Use the Linux startup script:
 
 ```bash
 ./[RUN]_LINUX.sh
+
 ```
 
 What it does:
 
-- changes to the script directory
-- checks for `python3`
-- creates a local `.venv` environment if one does not already exist
-- installs or upgrades dependencies from `requirements.txt`
-- detects Raspberry Pi hardware and installs GPIO support packages when appropriate
-- launches the application via `src/main.py`
-
-Important:
-
-- Linux requires a system `python3` installation to bootstrap the virtual environment.
-- The script manages its own virtual environment, so developers do not need a global Python environment.
+* Checks for a system `python3` installation.
+* Creates a local `.venv` (virtual environment) to isolate dependencies.
+* Installs or upgrades dependencies from `requirements.txt`.
+* Launches the application via `src/main.py`.
 
 ---
 
 ## 3. Project Structure
 
-The repository is organized into the following primary directories and files:
+The repository is organized into the following primary directories to maintain a clean codebase:
 
 ```text
-Atomic-launcher/
-├── assets/              # launcher UI assets and button graphics
-├── audio/               # shared sound and music files
-├── data/                # persistent JSON data files and defaults
-├── games/               # installed/managed game packages
-├── src/                 # main application source code
-│   ├── Drivers/         # optional input drivers (GPIO, controllers)
-│   ├── Machines/        # background loaders and installer logic
-│   ├── Managers/        # application service classes (audio, state)
-│   ├── Manifests/       # static manifests like music track mapping
-│   ├── States/          # UI states/screens (Library, Store, Options)
-│   ├── Tools/           # helper utilities and JSON loaders
-│   ├── UI/              # screen-specific UI components and widgets
-│   ├── settings.py      # global constants, paths, default configs
-│   └── main.py          # application entry point
-├── windows_python/      # bundled Windows Python runtime
-├── PortableGit/         # bundled Windows Git runtime
+SCP-Desk-Job/
+├── assets/              # Graphics, fonts, and icon assets
+├── audio/               # Sound effects and music tracks
+├── data/                # Persistent JSON configurations (controls, themes, saves)
+├── src/                 # Main application source code
+│   ├── Machines/        # Background workers (e.g., multithreaded asset loading)
+│   ├── Managers/        # Core service classes (State, Audio, Input, Achievements)
+│   ├── States/          # UI and Game states (Start Menu, Options, Extras, Gameplay)
+│   ├── Tools/           # Helper utilities for JSON loading and color processing
+│   ├── UI_elements/     # Reusable UI widgets (Buttons, Sliders, Option Tabs)
+│   ├── settings.py      # Global constants, file paths, and default configurations
+│   └── main.py          # Application entry point and main game loop
 ├── requirements.txt     # Python package dependencies
 ├── [RUN]_WINDOWS.bat    # Windows startup script
 └── [RUN]_LINUX.sh       # Linux startup script
+
 ```
-
-### Key directories
-
-- `src/Drivers/`: optional hardware input support such as Raspberry Pi GPIO.
-- `src/Machines/`: background asset import and repository-based game installation.
-- `src/Managers/`: handles audio playback and application state routing.
-- `src/States/`: contains the different launcher screens and state logic.
-- `src/UI/`: reusable UI widgets and screen-specific presentation classes.
-- `src/Tools/`: small utility helpers for JSON loading, timing, and asset scaling.
 
 ---
 
 ## 4. Core Architecture
 
-The launcher is built around a state-driven interface:
+The game relies on several centralized managers mapped out in `src/main.py`:
 
-- `src/main.py` initializes the runtime and enters the main event loop.
-- `src/Managers/state_manager.py` switches between active screens and routes input.
-- `src/States/` contains the screen implementations for Library, Store, Options, and Game Preview.
-- `src/UI/` contains reusable widgets such as buttons, sliders, and sidebars.
-- `src/Managers/audio_manager.py` centralizes music and sound playback.
-- `src/Machines/game_installing_machine.py` handles cloning, updating, and removing game repositories.
-- `src/Tools/data_loading_tools.py` manages JSON save/load with fallback defaults.
-
-The launcher renders to a fixed internal resolution and scales to the operating display, so UI components should generally work with that virtual window size.
+* **StateManager (`Managers/state_manager.py`):** Routes logic and rendering to the active screen (e.g., Main Menu, Options, Gameplay). It handles UI focus and transitions between states.
+* **InputManager (`Managers/input_manager.py`):** Abstracts hardware inputs. It maps raw keyboard presses and gamepad inputs (buttons, analog sticks) to unified string-based "actions" (e.g., `up`, `action_a`). It also includes deadzone handling and analog cursor control.
+* **AudioManager (`Managers/audio_manager.py`):** Centralizes music and sound effect playback, linked directly to the user's volume settings.
+* **AchievementManager (`Managers/achievement_manager.py`):** Tracks player progress and triggers UI popups when milestones are reached.
+* **Virtual Resolution System:** The game renders to a consistent internal 16:9 resolution (`WINDOW_WIDTH` x `WINDOW_HEIGHT`) and mathematically scales up or down to fit the user's display, preserving aspect ratio with letterboxing/pillarboxing.
 
 ---
 
-## 5. Running the Launcher
+## 5. Running the Game
 
-### Recommended flow
+### Recommended Flow
 
-1. open a terminal in the launcher root
-2. on Windows: run `[RUN]_WINDOWS.bat`
-3. on Linux: run `./[RUN]_LINUX.sh`
+1. Open a terminal in the root directory.
+2. On Windows: run `[RUN]_WINDOWS.bat`
+3. On Linux: run `./[RUN]_LINUX.sh`
 
-### Direct launch
+### Direct Launch (Development)
 
-If you need to run the code directly for debugging, use:
+If you are debugging and already have your Python environment activated, run:
 
 ```bash
 python src/main.py
+
 ```
 
-But for normal development and execution on this repository, prefer the platform scripts because they initialize the environment and keep the launcher configuration consistent.
+*Note: Make sure your working directory is the repository root so relative paths to `data/` and `assets/` resolve correctly.*
 
 ---
 
 ## 6. Dependencies
 
-Dependencies are listed in `requirements.txt` and include:
+Dependencies are listed in `requirements.txt`. The primary engines driving this project are:
 
-- `pygame-ce`
-- `pytmx`
-- `gpiozero`
-- `RPi.GPIO`
-- `pigpio`
-- `lgpio`
-- `opencv-python`
+* `pygame` or `pygame-ce` (Community Edition is recommended for better performance and modern features)
 
-### Windows
-
-The Windows runtime bundle installs Python and runs dependencies through the embedded `windows_python/python.exe`.
-
-### Linux
-
-The Linux script creates `.venv` and installs the requirements automatically. On Raspberry Pi hardware it also installs GPIO support packages.
+The initialization scripts handle the installation of these requirements automatically.
 
 ---
 
-## 7. Adding or Inspecting Games
+## 7. Contribution Workflow
 
-Installed games are stored under `games/`.
+### Recommended Process
 
-The launcher tracks installed game state and version information through game directories and `version.json` files. If you are adding a new game or inspecting installer behavior, use the `games/` structure as a reference.
+1. Fork the repository.
+2. Clone your fork locally.
+3. Create a feature branch (`git checkout -b feature/new-ui-element`).
+4. Make your changes. Ensure you update `settings.py` or JSON defaults if you add new controls or themes.
+5. Test your changes thoroughly using the provided platform run scripts.
+6. Commit and push your work.
+7. Open a Pull Request with a clear description of your changes.
 
----
+### Coding Guidelines
 
-## 8. Contribution Workflow
+* Keep UI logic strictly inside the `UI_elements/` folder and State routing inside `States/`.
+* Never poll `pygame.key.get_pressed()` directly in a UI element; always query the `InputManager`.
+* Ensure new assets (audio, images) are properly registered in the multithreaded `Machines/asset_importing_machine.py`.
 
-### Recommended process
+```
 
-1. fork the repository
-2. clone your fork locally
-3. create a feature branch
-4. make changes with clear comments and docstrings
-5. test using `[RUN]_WINDOWS.bat` or `./[RUN]_LINUX.sh`
-6. commit and push your work
-7. open a pull request with a description of your changes
-
-### Coding guidelines
-
-- keep features modular and isolated
-- prefer small, self-contained changes
-- document new classes and major methods
-- keep UI and state logic separate when possible
-- use the existing `src/` folders as templates for new functionality
-
----
-
-## 9. Notes for Raspberry Pi and GPIO
-
-On Linux, `[RUN]_LINUX.sh` detects Raspberry Pi hardware and installs required GPIO backends:
-
-- `python3-rpi.gpio`
-- `python3-pigpio`
-- `python3-lgpio`
-
-The project also includes `src/Drivers/raspberry_pi_gpio.py` for mapping GPIO buttons into Pygame events.
-
----
-
-## Final Notes
-
-This documentation is meant to be up-to-date with the current repository and startup scripts. If you update `[RUN]_WINDOWS.bat` or `[RUN]_LINUX.sh`, please also update this file so future developers always have the correct startup instructions.
+```

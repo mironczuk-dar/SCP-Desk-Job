@@ -1,4 +1,6 @@
-STATE_MUSIC_TRACKS = {}
+STATE_MUSIC_TRACKS = {
+    'Start menu' : 'Start menu',
+}
 
 
 #EXAMPLE CODE

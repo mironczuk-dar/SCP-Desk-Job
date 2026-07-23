@@ -23,6 +23,7 @@ from Machines.asset_importing_machine import (
     load_menu_assets,
     load_game_assets,
     load_audio,
+    load_fonts
     )
 
 
@@ -69,11 +70,12 @@ class Game:
         """
         from concurrent.futures import ThreadPoolExecutor
 
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        with ThreadPoolExecutor(max_workers=4) as executor:
             futures = [
                 executor.submit(load_audio, s),
                 executor.submit(load_menu_assets, s),
                 executor.submit(load_game_assets, s),
+                executor.submit(load_fonts, s)
             ]
             # Wait for tasks to complete and propagate exceptions
             for f in futures:
