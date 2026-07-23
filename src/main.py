@@ -46,8 +46,9 @@ class Game:
         s.window = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
         s.screen = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.mouse.set_visible(True)
+        s.setting_up_mouse_cursor()
         pygame.display.set_caption('[Default Pygame Project] - Game made by Dariusz J. Mironczuk')
-        #pygame.display.set_icon(pygame.image.load(join(ROOT_DIR, 'assets', 'icon.png')))
+        pygame.display.set_icon(pygame.image.load(join(ROOT_DIR, 'assets', 'icon.png')).convert_alpha())
 
         #INITALIZING CLOCK
         s.clock = pygame.time.Clock()
@@ -97,6 +98,21 @@ class Game:
         s.fullscreen = s.window_data['fullscreen']
         s.last_window_size = (s.window_data['width'], s.window_data['height'])
         s.flags = pygame.FULLSCREEN if s.fullscreen else pygame.RESIZABLE
+
+    def setting_up_mouse_cursor(s):
+        cursor_idle_surf = pygame.image.load(join(ROOT_DIR, 'assets', 'mouse_cursors', 'default_mouse_cursor.png')).convert_alpha()
+        cursor_click_surf = pygame.image.load(join(ROOT_DIR, 'assets', 'mouse_cursors', 'default_mouse_cursor.png')).convert_alpha()
+
+        cursor_idle_surf = pygame.transform.smoothscale(cursor_idle_surf, (44, 44))
+        cursor_click_surf = pygame.transform.smoothscale(cursor_click_surf, (32, 32))
+
+        idle_hotspot = (22, 22)
+        click_hotspot = (16, 16)
+
+        s.cursor_idle = pygame.cursors.Cursor(idle_hotspot, cursor_idle_surf)
+        s.cursor_click = pygame.cursors.Cursor(click_hotspot, cursor_click_surf)
+
+        pygame.mouse.set_cursor(s.cursor_idle)
 
     def get_scaled_mouse_pos(s):
         """Return mouse position scaled from display space to virtual window."""
@@ -174,6 +190,15 @@ class Game:
                 s.save()
                 pygame.quit()
                 exit()
+
+            # --- MOUSE CURSOR STATE SWAPPING ---
+            # Switch to scaled-down cursor on left click down
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                pygame.mouse.set_cursor(s.cursor_click)
+
+            # Revert to standard size on left click release
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                pygame.mouse.set_cursor(s.cursor_idle)
 
             if event.type == pygame.VIDEORESIZE and not s.fullscreen:
                 s.window_data['width'] = event.w
