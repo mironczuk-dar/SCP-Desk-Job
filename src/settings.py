@@ -8,32 +8,36 @@ ROOT_DIR = dirname(dirname(abspath(__file__)))
 #IN-GAME SETTINGS
 #TILE_SIZE = 8
 
-#CONTROLLS SETTINGS
 CONTROLS_DATA_PATH = join(ROOT_DIR, "data", "controls.json")
 DEFAULT_CONTROLS_DATA = {
-    'keyboard' : {
-    'up' : pygame.K_UP,
-    'down' : pygame.K_DOWN,
-    'left' : pygame.K_LEFT,
-    'right' : pygame.K_RIGHT,
-    'options' : pygame.K_TAB,
-    'action_a' : pygame.K_r,
-    'action_b' : pygame.K_e},
-
-    'gamepad' : {
-        'action_a' : 0,
-        'action_b' : 1,
-        'options' : 6,
+    'keyboard': {
+        'up': pygame.K_UP,
+        'down': pygame.K_DOWN,
+        'left': pygame.K_LEFT,
+        'right': pygame.K_RIGHT,
+        'options': pygame.K_TAB,
+        'action_a': pygame.K_r,
+        'action_b': pygame.K_e
     },
-    'gpio' : {
-        'up' : 17,
-        'down' : 27,
-        'left' : 22,
-        'right' : 23,
-        'action_a' : 5,
-        'action_b' : 6,
-        'options' : 13
-    }}
+    'gamepad': {
+        'action_a': 0,    # Xbox 'A' / PlayStation 'Cross'
+        'action_b': 1,    # Xbox 'B' / PlayStation 'Circle'
+        'options': 6,     # Xbox 'Menu' / PlayStation 'Options'
+        'up': 11,         # D-pad Button fallbacks
+        'down': 12,
+        'left': 13,
+        'right': 14
+    },
+    'gpio': {
+        'up': 17,
+        'down': 27,
+        'left': 22,
+        'right': 23,
+        'action_a': 5,
+        'action_b': 6,
+        'options': 13
+    }
+}
 
 #SCREEN / WINDOW SETTINGS
 WINDOW_DATA_PATH = join(ROOT_DIR, 'data', 'window_data.json')
