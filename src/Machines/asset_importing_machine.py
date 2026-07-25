@@ -22,7 +22,7 @@ def load_audio(game):
 #LOADING LEVEL ASSETS
 def load_menu_assets(game):
     game.button_images = import_folder_dict(join(ROOT_DIR, 'assets', 'button_assets'))
-    game.button_images = scale_asset(game.button_images, 10)
+    game.button_images = scale_asset_by_factor(game.button_images, 10)
 
 def load_game_assets(game):
     pass

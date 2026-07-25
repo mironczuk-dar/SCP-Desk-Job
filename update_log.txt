@@ -1,0 +1,10 @@
+--- THINGS TO DO ---
+- Add concept art as background images
+
+--- UPDATE LOG ---
+
+24.07.2026r.
+- Added concept art for background image in start menu
+- Added trackpad support to the GPIO pins
+- Added controller support to InputManager
+- Added GPIO support to InputManager

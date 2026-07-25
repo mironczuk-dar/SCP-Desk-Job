@@ -8,6 +8,10 @@ from os.path import join
 from States.generic_state import GenericState
 from settings import WINDOW_WIDTH, WINDOW_HEIGHT, ROOT_DIR
 
+#IMPROTING TOOLS
+from Tools.asset_importing_tools import import_image
+from Tools.asset_scaling_tools import scale_assets_to_size
+
 #IMPORTING ELEMENTS
 from UI_elements.Generic_UI_elements.buttons import ImageAudioButton
 from UI_elements.Generic_UI_elements.edited_text import create_text_with_outline
@@ -22,7 +26,8 @@ class StartMenu(GenericState):
         super().__init__(game)
 
         # UI
-        s.background = None
+        s.background = import_image(join(ROOT_DIR, 'assets', 'concept_art', 'Concept art 2'), format='.jpg')
+        s.background = scale_assets_to_size(s.background, WINDOW_WIDTH, WINDOW_HEIGHT)
         s.font = pygame.font.SysFont(None, 40)
         s.buttons = []
 
@@ -44,8 +49,8 @@ class StartMenu(GenericState):
     def on_enter(s):
 
         try:
-            s.background = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
-            s.background.fill('#ADD8E6')
+            #s.background = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+            #s.background.fill('#ADD8E6')
             
             for btn in s.buttons:
                 if hasattr(btn, 'waiting_for_audio'):
@@ -108,16 +113,17 @@ class StartMenu(GenericState):
 
     #METHOD FOR SETTING UP THE MENU (CREATING BUTTONS, ...)
     def setup(s):
-        button_width = 450
+        button_width = 550
+        button_height = 120
         pos_x = button_width // 2 + 50 
         pos_y = 80
         visible_states = ["Singleplayer menu", "Extras menu", "Options menu"]
         
         #button_image = pygame.image.load(join(ROOT_DIR, 'assets', 'images', 'button.png')).convert_alpha()
         #hovered_button_image = pygame.image.load(join(ROOT_DIR, 'assets', 'images', 'button_hovered.png')).convert_alpha()
-        button_image = pygame.Surface((button_width, 60), pygame.SRCALPHA)
+        button_image = pygame.Surface((button_width, button_height), pygame.SRCALPHA)
         button_image.fill((255, 255, 255, 200))
-        hovered_button_image = pygame.Surface((button_width, 60), pygame.SRCALPHA)
+        hovered_button_image = pygame.Surface((button_width, button_height), pygame.SRCALPHA)
         hovered_button_image.fill((0, 0, 0, 200))
 
 

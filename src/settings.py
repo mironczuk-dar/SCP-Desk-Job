@@ -20,24 +20,30 @@ DEFAULT_CONTROLS_DATA = {
         'action_b': pygame.K_e
     },
     'gamepad': {
-        'action_a': 0,    # Xbox 'A' / PlayStation 'Cross'
-        'action_b': 1,    # Xbox 'B' / PlayStation 'Circle'
-        'options': 6,     # Xbox 'Menu' / PlayStation 'Options'
-        'up': 11,         # D-pad Button fallbacks
+        'action_a': 0,
+        'action_b': 1,
+        'options': 6,
+        'up': 11,
         'down': 12,
         'left': 13,
         'right': 14
     },
     'gpio': {
-        'up': 17,
-        'down': 27,
-        'left': 22,
-        'right': 23,
-        'action_a': 5,
-        'action_b': 6,
-        'options': 13
-    }
+        'buttons' : {
+            'up': 17,
+            'down': 27,
+            'left': 22,
+            'right': 23,
+            'action_a': 5,
+            'action_b': 6,
+            'options': 13
+        },
+        'trackpad' : {  #ATTACHING A TRACKPAD TO THE GIPO PINS
+            'action_a': 1,    # Trackpad Tap / Left Click
+            'action_b': 3     # Secondary Tap / Right Click
+        }}
 }
+
 
 #SCREEN / WINDOW SETTINGS
 WINDOW_DATA_PATH = join(ROOT_DIR, 'data', 'window_data.json')

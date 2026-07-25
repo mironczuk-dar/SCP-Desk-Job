@@ -2,8 +2,11 @@
 import pygame
 from pygame.math import Vector2 as vector
 
+def scale_assets_to_size(asset, width, height):
+    surface = pygame.transform.scale(asset, (width, height))
+    return surface
 
-def scale_asset(asset, scale_factor):
+def scale_asset_by_factor(asset, scale_factor):
     """Scale an asset by a multiplicative factor.
 
     Supports Surface objects as well as nested lists/dictionaries of
@@ -15,10 +18,10 @@ def scale_asset(asset, scale_factor):
         return pygame.transform.scale(asset, new_size)
     
     elif isinstance(asset, list):
-        return [scale_asset(item, scale_factor) for item in asset]
+        return [scale_asset_by_factor(item, scale_factor) for item in asset]
     
     elif isinstance(asset, dict):
-        return {key: scale_asset(value, scale_factor) for key, value in asset.items()}
+        return {key: scale_asset_by_factor(value, scale_factor) for key, value in asset.items()}
     
     return asset
 

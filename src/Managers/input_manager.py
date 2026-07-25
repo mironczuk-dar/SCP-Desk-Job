@@ -28,7 +28,8 @@ class InputManager:
         s.gpio_buttons = {}
         try:
             from gpiozero import Button
-            gpio_config = s.game.controls_data.get('gpio', {})
+            # Safely navigate into the nested 'buttons' dictionary
+            gpio_config = s.game.controls_data.get('gpio', {}).get('buttons', {})
             
             for action, pin in gpio_config.items():
                 if pin is not None:
@@ -65,13 +66,18 @@ class InputManager:
         s.actions_just_pressed.clear()
         s.actions_just_released.clear()
 
+        # CONFIG MAPPINGS
         kbd_config = s.game.controls_data.get('keyboard', {})
         key_to_action = {v: k for k, v in kbd_config.items()}
 
         pad_config = s.game.controls_data.get('gamepad', {})
         button_to_action = {v: k for k, v in pad_config.items()}
 
-        # PROCESSING EVENT QUEUE (KEYBOARD AND GAMEPAD)
+        # Fetch 'trackpad' config, with a fallback to 'mouse' just in case
+        trackpad_config = s.game.controls_data.get('trackpad', s.game.controls_data.get('mouse', {}))
+        mouse_to_action = {v: k for k, v in trackpad_config.items()}
+
+        # PROCESSING EVENT QUEUE (KEYBOARD, GAMEPAD, AND TRACKPAD)
         for event in events:
             # HANDLING CONTROLLER CONNECTION/DISCONNECTION EVENTS
             if event.type == pygame.JOYDEVICEADDED or event.type == pygame.JOYDEVICEREMOVED:
@@ -121,6 +127,17 @@ class InputManager:
                         s.actions_pressed.discard(dir_name)
                         s.actions_just_released.add(dir_name)
                     s.hat_states[dir_name] = active
+            
+            # TRACKPAD TAP / MOUSE BUTTON CLICKS
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button in mouse_to_action:
+                action = mouse_to_action[event.button]
+                s.actions_pressed.add(action)
+                s.actions_just_pressed.add(action)
+
+            elif event.type == pygame.MOUSEBUTTONUP and event.button in mouse_to_action:
+                action = mouse_to_action[event.button]
+                s.actions_pressed.discard(action)
+                s.actions_just_released.add(action)
 
         # PROCESSING ANALOG STICKS (POLLING AXIS VALUES FOR CONTINUOUS MOVEMENT)
         s._update_analog_axes()
