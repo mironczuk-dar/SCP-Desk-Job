@@ -1,5 +1,5 @@
 --- THINGS TO DO ---
-- Improve locker visuals in the singleplayer menu
+- Refactor the singleplayer_menu.py, save_file_wizzard.py and lockers.py 
 - Add concept art as background images (singleplayer menu, extras menu)
 
 --- UPDATE LOG ---
