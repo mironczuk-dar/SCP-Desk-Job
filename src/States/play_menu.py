@@ -1,12 +1,19 @@
+#IMPORTING LIBRARIES
 import pygame
+from os.path import join
+
+#IMPORTING TOOLS
 from Tools.asset_importing_tools import import_image
 from Tools.asset_scaling_tools import scale_assets_to_size
-from States.generic_state import GenericState
-from settings import ROOT_DIR, WINDOW_WIDTH, WINDOW_HEIGHT
-from os.path import join
 from Tools.text_drawing_tools import draw_text
+
+#IMPORTING FILES
+from settings import ROOT_DIR, WINDOW_WIDTH, WINDOW_HEIGHT
+from States.generic_state import GenericState
 from Managers.save_file_manager import SaveFileManager
-from UI_elements.Singleplayer_menu_UI_elements.lockers import Locker, EmptyLocker
+
+#IMPORTING UI ELEMENTS
+from UI_elements.Play_menu_UI_elements.lockers import Locker, EmptyLocker
 from UI_elements.Generic_UI_elements.buttons import GenericButton
 
 
@@ -19,7 +26,6 @@ class SingleplayerMenu(GenericState):
         s.background = import_image(join(ROOT_DIR, 'assets', 'concept_art', 'Concept art 3'), format='.jpg')
         s.background = scale_assets_to_size(s.background, WINDOW_WIDTH, WINDOW_HEIGHT)
 
-        pygame.font.init()
         s.font_title = pygame.font.SysFont('arial', 60, bold=True)
         
         s.back_button = GenericButton(
@@ -40,12 +46,12 @@ class SingleplayerMenu(GenericState):
 
         s.setup()
 
+    def setup(s):
+        s.refresh_lockers()
+
     def on_enter(s):
         s.refresh_lockers()
         s.current_focus_index = 0
-
-    def setup(s):
-        s.refresh_lockers()
 
     def refresh_lockers(s):
         slot_data_list = s.save_file_manager.refresh_slots()

@@ -41,7 +41,7 @@ class EmptyLocker(GenericLocker):
         self.font_plus = pygame.font.SysFont("arial", 96, bold=True)
 
     def update(self, mouse_pos, delta_time):
-        pass  # Handled by SingleplayerMenu focus logic
+        pass
 
     def draw(self, window, overlay):
         bg = (30, 33, 40)
@@ -99,7 +99,6 @@ class EmptyLocker(GenericLocker):
         pass
 
 
-
 class Locker(GenericLocker):
     def __init__(self, game, slot_id, rect, data):
         super().__init__(game, slot_id, rect)
@@ -142,7 +141,7 @@ class Locker(GenericLocker):
             "DELETE",
             text_size=20,
             text_colour=(255, 255, 255),
-            colour=(175, 45, 45),  # Red
+            colour=(175, 45, 45),
             action=lambda: game.save_file_manager.delete_slot(slot_id)
         )
 

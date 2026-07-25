@@ -18,7 +18,7 @@ from Managers.input_manager import InputManager
 from States.start_menu import StartMenu
 from States.extras_menu import ExtrasMenu
 from States.options_menu import Options
-from States.singleplayer_menu import SingleplayerMenu
+from States.play_menu import SingleplayerMenu
 from States.save_file_wizzard import SaveFileWizzard
 
 #IMPROTING FUNCTIONS FOR LOADING ASSETS
@@ -171,7 +171,7 @@ class Game:
         s.state_manager.add_state('Start menu', StartMenu(s))
         s.state_manager.add_state('Extras menu', ExtrasMenu(s))
         s.state_manager.add_state('Options menu', Options(s))
-        s.state_manager.add_state('Singleplayer menu', SingleplayerMenu(s))
+        s.state_manager.add_state('Play menu', SingleplayerMenu(s))
         s.state_manager.add_state('Save file wizzard', SaveFileWizzard(s))
 
         s.state_manager.set_state('Start menu')

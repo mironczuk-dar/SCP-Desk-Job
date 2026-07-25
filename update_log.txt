@@ -1,12 +1,16 @@
 --- THINGS TO DO ---
+- Create the gameplay_state and start making the actual gameplay
 - Refactor the singleplayer_menu.py, save_file_wizzard.py and lockers.py 
 - Add concept art as background images (singleplayer menu, extras menu)
 
 --- UPDATE LOG ---
 
-24.07.2026r.
-- Add singleplayer menu (savefile selection menu)
+25.07.2026r.
+- Added text images for the start menu
+- Added singleplayer menu (savefile selection menu)
 - Added concept art for background image in start menu
+
+24.07.2026r.
 - Added trackpad support to the GPIO pins
 - Added controller support to InputManager
 - Added GPIO support to InputManager

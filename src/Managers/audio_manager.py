@@ -12,6 +12,7 @@ from settings import AUDIO_DATA_PATH
 from Tools.data_loading_tools import save_data
 from pygame import mixer
 from Tools.timer import Timer
+from Tools.test_sound import create_test_beep
 from Manifests.music_manifest import STATE_MUSIC_TRACKS
 
 class AudioManager:
@@ -30,7 +31,7 @@ class AudioManager:
         s.music_volume = s.game.audio_data.get('music_volume', 1.0)
 
         # sound effects
-        #s.test_sound = pygame.mixer.Sound(join(ROOT_DIR, 'audio', 'Sounds', 'select_sound.wav'))
+        s.test_sound = create_test_beep()
         s.sound_on = s.game.audio_data.get('sound_on', True)
         s.sound_volume = s.game.audio_data.get('sound_volume', 1.0)
 
@@ -104,17 +105,24 @@ class AudioManager:
                 s.play_for_state(type(s.game.state_manager.active_state).__name__)
 
     # Sound effects
-    def play_sound(s, sound):
+    def play_sound(s, sound, volume=None):
         """Play a sound effect if sound effects are enabled."""
         if not s.sound_on:
             return None
 
-        snd = sound
-        if snd:
-            snd.set_volume(s.sound_volume)
-            return snd.play()
+        if sound:
+            # Use the provided volume, or default to s.sound_volume if None
+            active_volume = volume if volume is not None else s.sound_volume
+            
+            try:
+                sound.set_volume(active_volume)
+                return sound.play()
+            except AttributeError:
+                # This catches the bug where a string is passed instead of a Sound object
+                print(f"[SOUND ERROR]: Expected a Pygame Sound object, but got {type(sound)} ('{sound}')")
+                return None
         else:
-            print(f'[SOUND ERROR]: {snd}')
+            print(f'[SOUND ERROR]: {sound}')
             return None
 
     def set_sound_volume(s, volume):
