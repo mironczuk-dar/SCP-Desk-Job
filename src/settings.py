@@ -66,6 +66,11 @@ DEFAULT_AUDIO_DATA = {
     'music_volume' : 0.25
 }
 
+#SAVE FILE DATA
+SAVE_FILES_DATA_PATH = join(ROOT_DIR, 'data', 'save_files') #save_file1.json, save_file2.json, save_file3.json
+SAVE_FILE_SLOT_COUNT = 3
+DEFAULT_SAVE_FILE_DATA = []
+
 #ACHIEVEMENTS DATA
 ACHIEVEMENTS_DATA_PATH = join(ROOT_DIR, 'data', 'achievements.json')
 DEFAULT_ACHIVEMENTS_DATA = []
@@ -74,7 +79,7 @@ DEFAULT_ACHIVEMENTS_DATA = []
 #SAVEFILE_DATA_PATH = join(ROOT_DIR, 'data', 'save_data', 'save_file.json')
 
 #GAMEFILE_DATA
-GAMEFILE_DATA_PATH = join(ROOT_DIR, 'data', 'save_data', 'gamefile.json')
+GAMEFILE_DATA_PATH = join(ROOT_DIR, 'data', 'gamefile.json')
 DEFAULT_GAMEFILE_DATA = {
     'game launched' : False,
     'Good ending unlocked' : False,

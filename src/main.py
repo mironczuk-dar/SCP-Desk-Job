@@ -10,6 +10,7 @@ from Tools.data_loading_tools import load_data, save_data
 #IMPORTING STATES
 from Managers.state_manager import StateManager
 from Managers.audio_manager import AudioManager
+from Managers.save_file_manager import SaveFileManager
 from Managers.achievement_manager import AchievementManager
 from Managers.input_manager import InputManager
 
@@ -17,6 +18,8 @@ from Managers.input_manager import InputManager
 from States.start_menu import StartMenu
 from States.extras_menu import ExtrasMenu
 from States.options_menu import Options
+from States.singleplayer_menu import SingleplayerMenu
+from States.save_file_wizzard import SaveFileWizzard
 
 #IMPROTING FUNCTIONS FOR LOADING ASSETS
 from Machines.asset_importing_machine import (
@@ -160,6 +163,7 @@ class Game:
         """Create top-level managers used across the application."""
         s.state_manager = StateManager(s)
         s.audio_manager = AudioManager(s)
+        s.save_file_manager = SaveFileManager(s)
         s.achievements_manager = AchievementManager(s)
         s.input_manager = InputManager(s)
 
@@ -167,6 +171,8 @@ class Game:
         s.state_manager.add_state('Start menu', StartMenu(s))
         s.state_manager.add_state('Extras menu', ExtrasMenu(s))
         s.state_manager.add_state('Options menu', Options(s))
+        s.state_manager.add_state('Singleplayer menu', SingleplayerMenu(s))
+        s.state_manager.add_state('Save file wizzard', SaveFileWizzard(s))
 
         s.state_manager.set_state('Start menu')
 
