@@ -23,7 +23,7 @@ class SingleplayerMenu(GenericState):
         s.game = game
         s.save_file_manager = SaveFileManager(game)
 
-        s.background = import_image(join(ROOT_DIR, 'assets', 'concept_art', 'Concept art 3'), format='.jpg')
+        s.background = import_image(join(ROOT_DIR, 'assets', 'concept_art', 'play_menu'), format='.jpg')
         s.background = scale_assets_to_size(s.background, WINDOW_WIDTH, WINDOW_HEIGHT)
 
         s.font_title = pygame.font.SysFont('arial', 60, bold=True)

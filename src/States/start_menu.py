@@ -26,7 +26,7 @@ class StartMenu(GenericState):
         super().__init__(game)
 
         # UI
-        s.background = import_image(join(ROOT_DIR, 'assets', 'concept_art', 'Concept art 2'), format='.jpg')
+        s.background = import_image(join(ROOT_DIR, 'assets', 'concept_art', 'start_menu'), format='.jpg')
         s.background = scale_assets_to_size(s.background, WINDOW_WIDTH, WINDOW_HEIGHT)
         s.button_background = import_image(join(ROOT_DIR, 'assets', 'start_menu_assets', 'button_background'))
         s.button_background = scale_assets_to_size(s.button_background, 650, 580)

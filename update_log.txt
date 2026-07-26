@@ -1,4 +1,6 @@
 --- THINGS TO DO ---
+- Create graphic concept art for new save file wizzard
+- Add game keyboard and stuff.
 - Create the gameplay_state and start making the actual gameplay
 - Refactor the singleplayer_menu.py, save_file_wizzard.py and lockers.py 
 - Add concept art as background images (singleplayer menu, extras menu)

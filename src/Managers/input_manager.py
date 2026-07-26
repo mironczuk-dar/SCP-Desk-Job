@@ -28,19 +28,23 @@ class InputManager:
         s.gpio_buttons = {}
         try:
             from gpiozero import Button
-            # Safely navigate into the nested 'buttons' dictionary
-            gpio_config = s.game.controls_data.get('gpio', {}).get('buttons', {})
             
-            for action, pin in gpio_config.items():
-                if pin is not None:
-                    s.gpio_buttons[action] = Button(pin)
-            print(f"Successfully initialized {len(s.gpio_buttons)} GPIO buttons.")
+            # Fetch the entire 'gpio' dictionary
+            gpio_config = s.game.controls_data.get('gpio', {})
+            
+            # Iterate through all sub-groups inside 'gpio' (e.g., 'buttons', 'trackpad')
+            for sub_group_name, pin_map in gpio_config.items():
+                if isinstance(pin_map, dict):
+                    for action, pin in pin_map.items():
+                        if pin is not None:
+                            # Initializes gpiozero Button for each pin defined
+                            s.gpio_buttons[action] = Button(pin)
+                            
+            print(f"Successfully initialized {len(s.gpio_buttons)} GPIO input pins.")
         except ImportError:
             print("gpiozero library not found. Skipping GPIO setup.")
         except Exception as e:
             print(f"Could not initialize GPIO: {e}")
-            
-        s.gpio_previous_state = {action: False for action in s.gpio_buttons.keys()}
 
     def _trigger_action(s, action):
         """Helper method to trigger an action based on analog stick movement."""
