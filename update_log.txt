@@ -1,11 +1,15 @@
 --- THINGS TO DO ---
-- Create graphic concept art for new save file wizzard
-- Add game keyboard and stuff.
+- Create concept art of the gameplay loop.
+- Think about the upgrade items, so you can start developing the gameplay
 - Create the gameplay_state and start making the actual gameplay
 - Refactor the singleplayer_menu.py, save_file_wizzard.py and lockers.py 
-- Add concept art as background images (singleplayer menu, extras menu)
 
 --- UPDATE LOG ---
+27.07.2026r.
+- Created Embosser device and save file wizzard functionality.
+
+26.07.2026r.
+- Created concept art for the save file wizzard
 
 25.07.2026r.
 - Added text images for the start menu
