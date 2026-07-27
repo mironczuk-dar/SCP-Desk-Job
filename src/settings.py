@@ -16,8 +16,8 @@ DEFAULT_CONTROLS_DATA = {
         'left': pygame.K_LEFT,
         'right': pygame.K_RIGHT,
         'options': pygame.K_TAB,
-        'action_a': pygame.K_r,
-        'action_b': pygame.K_e
+        'action_a': pygame.K_RETURN,
+        'action_b': pygame.K_BACKSPACE
     },
     'gamepad': {
         'action_a': 0,
