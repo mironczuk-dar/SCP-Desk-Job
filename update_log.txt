@@ -6,6 +6,7 @@
 
 --- UPDATE LOG ---
 27.07.2026r.
+- Fixed the GPIO pins bugs
 - Created Embosser device and save file wizzard functionality.
 
 26.07.2026r.
