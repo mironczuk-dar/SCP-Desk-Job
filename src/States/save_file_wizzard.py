@@ -7,6 +7,7 @@ from settings import WINDOW_WIDTH, WINDOW_HEIGHT, ROOT_DIR
 from Tools.text_drawing_tools import draw_text
 from Tools.asset_importing_tools import import_image
 from Tools.asset_scaling_tools import scale_assets_to_size
+from UI_elements.Generic_UI_elements.buttons import ImageAudioButton
 
 from UI_elements.Save_file_wizzard_UI_elements.embosser_device import EmbroiderTool
 
@@ -31,9 +32,30 @@ class SaveFileWizzard(GenericState):
         embosser_y = 140
         self.embosser = EmbroiderTool(self.game, (embosser_x, embosser_y), 90, self.handle_key_input)
 
+        # TRASHCAN BUTTON
+        self.width = 100
+        self.height = 100
+
+        # Create placeholder surfaces explicitly
+        trashcan_img = pygame.Surface((self.width, self.height))
+        trashcan_img.fill((200, 0, 0))
+
+        trashcan_hover_img = pygame.Surface((self.width, self.height))
+        trashcan_hover_img.fill((255, 0, 0))
+
+        self.trashcan = ImageAudioButton(
+            game=game,
+            pos=(WINDOW_WIDTH - self.width//2 - 20, self.height - 20), # added 20px padding from screen edge
+            image=trashcan_img,
+            hover_image=trashcan_hover_img,
+            text='cancel',
+            text_colour=(0, 0, 0),
+            text_size=30,
+            action=self.cancel_creation
+        )
+
     def on_enter(self):
         self.name = ''
-        # You'll need to set self.slot_id from your Locker Room state before coming here
 
     def handle_key_input(self, key):
         """Callback fired by the EmbroiderTool whenever a key is successfully triggered."""
@@ -48,25 +70,21 @@ class SaveFileWizzard(GenericState):
 
     def update(self, delta_time):
         self.embosser.update(delta_time)
+        self.trashcan.update(delta_time)
 
     def draw(self, window):
         window.blit(self.background, (0, 0))
         
         # Draw the stamped text onto the clipboard form
-        # (Adjust X/Y coordinates to align with your background art's 'ENTER NAME' line)
         draw_text(window, self.name, WINDOW_WIDTH // 2, 940, self.font_title, colour=(20, 30, 45))
         
-        # Draw the physical machine
+        # Draw the physical machine & button
         self.embosser.draw(window)
+        self.trashcan.draw(window)
 
     def handling_events(self, events):
-        # Route events to the UI element
         self.embosser.handling_events(events)
-        
-        # Allow cancelling out of the application
-        for event in events:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                self.game.state_manager.set_state('Play menu')
+        self.trashcan.handling_events(events)
 
     def save_current_slot(self):
         if self.slot_id is None:
@@ -83,4 +101,7 @@ class SaveFileWizzard(GenericState):
         }
 
         self.game.save_file_manager.save_slot(self.slot_id, save_data)
+        self.game.state_manager.set_state('Play menu')
+
+    def cancel_creation(self):
         self.game.state_manager.set_state('Play menu')
