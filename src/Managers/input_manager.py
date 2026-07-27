@@ -26,6 +26,8 @@ class InputManager:
 
         # INITIALIZING GPIO BUTTONS (Fails gracefully on non-Pi devices)
         s.gpio_buttons = {}
+        s.gpio_previous_state = {}  # ADD THIS LINE to initialize the dictionary
+        
         try:
             from gpiozero import Button
             
@@ -39,6 +41,9 @@ class InputManager:
                         if pin is not None:
                             # Initializes gpiozero Button for each pin defined
                             s.gpio_buttons[action] = Button(pin)
+                            
+                            # ADD THIS LINE to set the default previous state to False
+                            s.gpio_previous_state[action] = False 
                             
             print(f"Successfully initialized {len(s.gpio_buttons)} GPIO input pins.")
         except ImportError:
