@@ -5,6 +5,9 @@
 - Refactor the singleplayer_menu.py, save_file_wizzard.py and lockers.py 
 
 --- UPDATE LOG ---
+28.07.2026r.
+- Fixed the Linux run file
+
 27.07.2026r.
 - Fixed the GPIO pins bugs
 - Created Embosser device and save file wizzard functionality.
