@@ -1,11 +1,11 @@
 --- THINGS TO DO ---
-- Create concept art of the gameplay loop.
 - Think about the upgrade items, so you can start developing the gameplay
 - Create the gameplay_state and start making the actual gameplay
 - Refactor the singleplayer_menu.py, save_file_wizzard.py and lockers.py 
 
 --- UPDATE LOG ---
 28.07.2026r.
+- Made the Gameplay loop concept art
 - Fixed the Linux run file
 
 27.07.2026r.
