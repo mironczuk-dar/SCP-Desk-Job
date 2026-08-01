@@ -230,12 +230,6 @@ class Game:
         s.state_manager.update(s.delta_time)
         s.achievements_manager.update()
 
-    def update(s):
-        s.delta_time = s.clock.tick(s.fps) / 1000
-
-        print(f"FPS: {s.clock.get_fps():.2f}", end='\r')
-        s.state_manager.update(s.delta_time)
-        s.achievements_manager.update()
 
     def draw(s):
         """Render the active state to the virtual window and scale to the display."""

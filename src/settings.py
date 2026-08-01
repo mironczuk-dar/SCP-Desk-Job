@@ -28,20 +28,10 @@ DEFAULT_CONTROLS_DATA = {
         'left': 13,
         'right': 14
     },
-    'gpio': {
-        'buttons' : {
-            'up': 17,
-            'down': 27,
-            'left': 22,
-            'right': 23,
-            'action_a': 5,
-            'action_b': 6,
-            'options': 13
-        },
-        'trackpad' : {  #ATTACHING A TRACKPAD TO THE GIPO PINS
-            'action_a': 1,    # Trackpad Tap / Left Click
-            'action_b': 3     # Secondary Tap / Right Click
-        }}
+    'mouse': {
+        1: 'action_a',
+        3: 'action_b'
+    }
 }
 
 
